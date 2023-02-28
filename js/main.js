@@ -3,15 +3,16 @@ hw-06 - D3 Brushing & Linking
 Modified: 02/27/2023
 */
 
-
+// Set variables for the frame height and width
 const FRAME_HEIGHT = 500;
 const FRAME_WIDTH = 500; 
 const MARGINS = {left: 50, right: 50, top: 50, bottom: 50};
 
-
+// Use the frame dimensions to create dimensions for the visual
 const VIS_HEIGHT = FRAME_HEIGHT - MARGINS.top - MARGINS.bottom;
 const VIS_WIDTH = FRAME_WIDTH - MARGINS.left - MARGINS.right; 
 
+// Creates the first frame to hold the scatterplot
 const FRAME1 = d3.select("#LengthScatterplot")
                   .append("svg")
                     .attr("height", FRAME_HEIGHT)
@@ -19,6 +20,7 @@ const FRAME1 = d3.select("#LengthScatterplot")
                     .attr('id', 'spsvg')
                     .attr("class", "frame");
 
+// Builds the scatterplot to compare lengths
 function build_length_scatter_plot() {
     d3.csv("data/iris.csv").then((data) => {
 
@@ -60,7 +62,8 @@ function build_length_scatter_plot() {
           })
           .style('opacity', .5)
           .style('stroke-width', 0);
-
+    
+    // Adds the title to the first scatterplot
     FRAME1.append("text")
         .attr("x", (VIS_WIDTH / 2 + MARGINS.left / 2))             
         .attr("y", (MARGINS.top / 2))
@@ -87,7 +90,7 @@ function build_length_scatter_plot() {
   });
 }
 
-
+// Builds the frame to hold the next scatterplot
 const FRAME2 = d3.select("#WidthScatterplot")
                   .append("svg")
                     .attr("height", FRAME_HEIGHT)
@@ -95,7 +98,7 @@ const FRAME2 = d3.select("#WidthScatterplot")
                     .attr("class", "frame");
   
   
-
+// Function to build the scatterplot to compare width
 function build_width_scatter_plot() {
     d3.csv("data/iris.csv").then((data) => {
 
@@ -123,6 +126,7 @@ function build_width_scatter_plot() {
 
     let brush_range;
 
+    // Function to add borders and change opacity based on brush
     function brush_select(e) {
         brush_range = e.selection;
         let bar_select = new Set();
@@ -138,13 +142,18 @@ function build_width_scatter_plot() {
                 sel.style.strokeWidth = '0';
             }
         }
+
+        // Categorize points based on those selected by brush 
         let unselected = ['setosa', 'versicolor', 'virginica'].filter(x => !bar_select.has(x));
         let selected = Array.from(bar_select)
+
+        // Gives a border and changes opacity of selected points
         for (let i = 0; i < selected.length; i++) {
             let sel = document.getElementById(selected[i]);
                 sel.style.strokeWidth = '3';
                 sel.style.stroke = 'orange';
         }
+        // Sets unselected points back to default 
         for (let i = 0; i < unselected.length; i++) {
             let sel = document.getElementById(unselected[i]);
             sel.style.opacity = '.5';
@@ -152,6 +161,7 @@ function build_width_scatter_plot() {
         }
     }
 
+    // Applies the brush border changes to the bar chart based on selections
     function in_rect(d){
         return brush_range && X_SCALE2(d.Sepal_Width) + MARGINS.left >= brush_range[0][0] && X_SCALE2(d.Sepal_Width) +
             MARGINS.left <= brush_range[1][0] && Y_SCALE2(d.Petal_Width) + MARGINS.left >= brush_range[0][1] &&
@@ -177,6 +187,7 @@ function build_width_scatter_plot() {
             return color_dict[d.Species];
         });
 
+    // Adds a title to the second scatterplot
     FRAME2.append("text")
         .attr("x", (VIS_WIDTH / 2 + MARGINS.left / 2))             
         .attr("y", (MARGINS.top / 2))
@@ -208,12 +219,14 @@ function build_width_scatter_plot() {
 });
 }
 
+// Creates the third frame to hold the bar plot
 const FRAME3 = d3.select("#CountBarplot")
                   .append("svg")
                     .attr("height", FRAME_HEIGHT)
                     .attr("width", FRAME_WIDTH)
                     .attr("class", "frame");
 
+// Function to build the bar plot 
 function build_bar_plot() {
 
     d3.csv("data/iris.csv").then((data) => {
@@ -224,8 +237,8 @@ function build_bar_plot() {
         'setosa': 'Green'
         };
     
+    // Maps the data into a mapping so it can be visualized
     var flower_data = [{'setosa': 50}, {'versicolor': 50}, {'virginica': 50}]
-
     var mapped = flower_data.map(d => {
         return {
             species: Object.keys(d)[0],
@@ -261,6 +274,7 @@ function build_bar_plot() {
         .attr("fill", (d) => { return color_dict[d.species]; })
         .attr("opacity", 0.5);
         
+    // Adds a title to the bar chart
     FRAME3.append("text")
         .attr("x", (VIS_WIDTH / 2 + MARGINS.left / 2))             
         .attr("y", (MARGINS.top / 2))
@@ -269,18 +283,20 @@ function build_bar_plot() {
         .style("font-weight", 900)  
         .text("Count of Species");
 
-  FRAME3.append("g")
-      .attr("transform", "translate(0," + (VIS_HEIGHT+MARGINS.top) + ")")
-      .call(d3.axisBottom(X_SCALE3));
-
+    // Adds an x-axis to the barchart with appropriate labels
     FRAME3.append("g")
-    .attr("transform", "translate(" + MARGINS.left + 
-    "," + MARGINS.top + ")") 
-      .call(d3.axisLeft(Y_SCALE3));
-    });
+        .attr("transform", "translate(0," + (VIS_HEIGHT+MARGINS.top) + ")")
+        .call(d3.axisBottom(X_SCALE3));
+
+    // Adds a y-axis to the barchart with appropriate labels
+    FRAME3.append("g")
+        .attr("transform", "translate(" + MARGINS.left + 
+        "," + MARGINS.top + ")") 
+        .call(d3.axisLeft(Y_SCALE3));
+        });
   }  
 
-
+// Calls the functions above to create the relevant plots
 build_length_scatter_plot();
 build_width_scatter_plot();
 build_bar_plot();
