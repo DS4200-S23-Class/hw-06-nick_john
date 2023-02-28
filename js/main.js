@@ -19,7 +19,7 @@ const FRAME1 = d3.select("#LengthScatterplot")
                     .attr('id', 'spsvg')
                     .attr("class", "frame");
 
-
+let id_list = [];
 
 function build_length_scatter_plot() {
     d3.csv("data/iris.csv").then((data) => {
@@ -55,9 +55,28 @@ function build_length_scatter_plot() {
           .attr("cy", (d) => { return (Y_SCALE1(d.Petal_Length) + MARGINS.left); }) 
           .attr("r", 3)
           .attr("opacity", 0.5)
+          .attr("name", "p1")
           .attr("class", "point")
           .style('fill', function(d) {
-            return color_dict[d.Species];
+              if(id_list.includes(d.id)){
+                  return 'Yellow';
+              }else {
+                  return color_dict[d.Species];
+              }
+          })
+          .style('stroke-width', function(d) {
+              if(id_list.includes(d.id)){
+                  return 1;
+              }else {
+                  return 0;
+              }
+          })
+        .style('stroke', function(d) {
+            if(id_list.includes(d.id)){
+                return 'orange';
+            }else {
+                return 'black';
+            }
         });
 
     FRAME1.append("text")
@@ -91,7 +110,6 @@ const FRAME2 = d3.select("#WidthScatterplot")
                   .append("svg")
                     .attr("height", FRAME_HEIGHT)
                     .attr("width", FRAME_WIDTH)
-                    .attr('id', 'spsvg')
                     .attr("class", "frame");
   
   
@@ -120,6 +138,33 @@ function build_width_scatter_plot() {
         'versicolor': 'Red',
         'setosa': 'Green'
     };
+
+    let brush_range;
+
+    function brush_select(e) {
+        brush_range = e.selection;
+        let temp_array = [];
+        for (let i = 0; i < data.length; i++) {
+            if (in_rect(data[i])){
+                temp_array.push(data[i].id);
+            }
+        }
+        id_list = temp_array;
+        // reset graph if new points are being added
+        document.getElementsByName("p1").forEach(e => e.remove());
+        build_length_scatter_plot();
+    }
+
+    function in_rect(d){
+        return brush_range && X_SCALE2(d.Sepal_Width) + MARGINS.left >= brush_range[0][0] && X_SCALE2(d.Sepal_Width) +
+            MARGINS.left <= brush_range[1][0] && Y_SCALE2(d.Petal_Width) + MARGINS.left >= brush_range[0][1] &&
+            Y_SCALE2(d.Petal_Width) + MARGINS.left <= brush_range[1][1];
+    }
+
+    // create brush
+    const brush = d3.brush()
+        .extent([[0, 0], [FRAME_HEIGHT, FRAME_WIDTH]])
+        .on('brush end', brush_select);
 
     // Plot Points using the X scale created above
     FRAME2.selectAll("points")  
@@ -155,7 +200,12 @@ function build_width_scatter_plot() {
         .attr("transform", "translate(" + MARGINS.left + 
             "," + (MARGINS.bottom) + ")") 
         .call(d3.axisLeft(Y_SCALE2).ticks(10)) 
-            .attr("font-size", '10px'); 
+            .attr("font-size", '10px');
+
+    // append brush
+    FRAME2.append('g')
+        .attr('class', 'brush')
+        .call(brush);
 
 
 });
@@ -165,7 +215,6 @@ const FRAME3 = d3.select("#CountBarplot")
                   .append("svg")
                     .attr("height", FRAME_HEIGHT)
                     .attr("width", FRAME_WIDTH)
-                    .attr('id', 'spsvg')
                     .attr("class", "frame");
 
 function build_bar_plot() {
@@ -212,6 +261,12 @@ function build_bar_plot() {
         .attr("width", X_SCALE3.bandwidth())
         .attr("height", (d) => { return (VIS_HEIGHT - Y_SCALE3(d.count)); })
         .attr("fill", (d) => { return color_dict[d.species]; })
+        .attr("stroke", (d) => {
+
+        })
+        .attr("stroke-width", (d) => {
+
+        })
         .attr("opacity", 0.5);
         
     FRAME3.append("text")
