@@ -54,14 +54,15 @@ function build_length_scatter_plot() {
           .attr("cx", (d) => { return (X_SCALE1(d.Sepal_Length) + MARGINS.left); }) 
           .attr("cy", (d) => { return (Y_SCALE1(d.Petal_Length) + MARGINS.left); }) 
           .attr("r", 3)
-          .attr("opacity", 0.5)
           .attr("name", "p1")
           .attr("class", "point")
           .style('fill', function(d) {
+            return color_dict[d.Species];})
+          .style('opacity', function(d) {
               if(id_list.includes(d.id)){
-                  return 'Yellow';
+                  return 1.0;
               }else {
-                  return color_dict[d.Species];
+                  return 0.5;
               }
           })
           .style('stroke-width', function(d) {
