@@ -19,8 +19,6 @@ const FRAME1 = d3.select("#LengthScatterplot")
                     .attr('id', 'spsvg')
                     .attr("class", "frame");
 
-let id_list = [];
-
 function build_length_scatter_plot() {
     d3.csv("data/iris.csv").then((data) => {
 
@@ -55,30 +53,13 @@ function build_length_scatter_plot() {
           .attr("cy", (d) => { return (Y_SCALE1(d.Petal_Length) + MARGINS.left); }) 
           .attr("r", 3)
           .attr("name", "p1")
+          .attr("id", (d) => { return 'dp' + d.id; })
           .attr("class", "point")
           .style('fill', function(d) {
-            return color_dict[d.Species];})
-          .style('opacity', function(d) {
-              if(id_list.includes(d.id)){
-                  return 1.0;
-              }else {
-                  return 0.5;
-              }
+            return color_dict[d.Species];
           })
-          .style('stroke-width', function(d) {
-              if(id_list.includes(d.id)){
-                  return 1;
-              }else {
-                  return 0;
-              }
-          })
-        .style('stroke', function(d) {
-            if(id_list.includes(d.id)){
-                return 'orange';
-            }else {
-                return 'black';
-            }
-        });
+          .style('opacity', .5)
+          .style('stroke-width', 0);
 
     FRAME1.append("text")
         .attr("x", (VIS_WIDTH / 2 + MARGINS.left / 2))             
@@ -144,16 +125,31 @@ function build_width_scatter_plot() {
 
     function brush_select(e) {
         brush_range = e.selection;
-        let temp_array = [];
+        let bar_select = new Set();
         for (let i = 0; i < data.length; i++) {
+            let sel = document.getElementById('dp' + data[i].id);
             if (in_rect(data[i])){
-                temp_array.push(data[i].id);
+                bar_select.add(data[i].Species)
+                sel.style.opacity = '1';
+                sel.style.strokeWidth = '1';
+                sel.style.stroke = 'orange';
+            }else{
+                sel.style.opacity = '.5';
+                sel.style.strokeWidth = '0';
             }
         }
-        id_list = temp_array;
-        // reset graph if new points are being added
-        document.getElementsByName("p1").forEach(e => e.remove());
-        build_length_scatter_plot();
+        let unselected = ['setosa', 'versicolor', 'virginica'].filter(x => !bar_select.has(x));
+        let selected = Array.from(bar_select)
+        for (let i = 0; i < selected.length; i++) {
+            let sel = document.getElementById(selected[i]);
+                sel.style.strokeWidth = '3';
+                sel.style.stroke = 'orange';
+        }
+        for (let i = 0; i < unselected.length; i++) {
+            let sel = document.getElementById(unselected[i]);
+            sel.style.opacity = '.5';
+            sel.style.strokeWidth = '0';
+        }
     }
 
     function in_rect(d){
@@ -258,16 +254,11 @@ function build_bar_plot() {
         .append("rect")  
         .attr("class", "bar")
         .attr("x", (d) => { return X_SCALE3(d.species); }) 
-        .attr("y", (d) => { return MARGINS.top + Y_SCALE3(d.count); }) 
+        .attr("y", (d) => { return MARGINS.top + Y_SCALE3(d.count); })
+        .attr('id', (d) => { return d.species })
         .attr("width", X_SCALE3.bandwidth())
         .attr("height", (d) => { return (VIS_HEIGHT - Y_SCALE3(d.count)); })
         .attr("fill", (d) => { return color_dict[d.species]; })
-        .attr("stroke", (d) => {
-
-        })
-        .attr("stroke-width", (d) => {
-
-        })
         .attr("opacity", 0.5);
         
     FRAME3.append("text")
