@@ -29,7 +29,7 @@ function build_length_scatter_plot() {
 
     // Creates the scale function using data
     const X_SCALE1 = d3.scaleLinear() 
-                      .domain([0, MAX_X1]) 
+                      .domain([0, MAX_X1+0.1]) 
                       .range([0, VIS_WIDTH]); 
 
     // find max Y from the data 
@@ -37,7 +37,7 @@ function build_length_scatter_plot() {
                       
     // Creates the scale function using data
     const Y_SCALE1 = d3.scaleLinear() 
-                        .domain([0, MAX_Y1]) 
+                        .domain([0, MAX_Y1+0.1]) 
                         .range([VIS_HEIGHT, 0]); 
 
     var color_dict = {
@@ -122,7 +122,7 @@ function build_width_scatter_plot() {
 
     // Creates the scale function using data
     const X_SCALE2 = d3.scaleLinear() 
-                    .domain([0, MAX_X2]) 
+                    .domain([0, MAX_X2+0.6]) 
                     .range([0, VIS_WIDTH]); 
 
     // find max Y from the data 
@@ -130,7 +130,7 @@ function build_width_scatter_plot() {
                     
     // Creates the scale function using data
     const Y_SCALE2 = d3.scaleLinear() 
-                        .domain([0, MAX_Y2]) 
+                        .domain([0, MAX_Y2+1]) 
                         .range([VIS_HEIGHT, 0]); 
 
     var color_dict = {
@@ -192,7 +192,7 @@ function build_width_scatter_plot() {
     FRAME2.append("g") 
         .attr("transform", "translate(" + MARGINS.left + 
                 "," + (VIS_HEIGHT + MARGINS.top) + ")") 
-        .call(d3.axisBottom(X_SCALE2).ticks(10)) 
+        .call(d3.axisBottom(X_SCALE2).ticks(5)) 
             .attr("font-size", '10px'); 
 
     // Adds a Y axis to the scatter plot
@@ -248,7 +248,7 @@ function build_bar_plot() {
     // Creates the scale function using data
     const Y_SCALE3 = d3.scaleLinear() 
                         .domain([0, MAX_Y3]) 
-                        .range([VIS_HEIGHT, MARGINS.top]); 
+                        .range([VIS_HEIGHT, 0]); 
 
     // Plot Points using the X scale created above
     FRAME3.selectAll("bar")  
@@ -257,7 +257,7 @@ function build_bar_plot() {
         .append("rect")  
         .attr("class", "bar")
         .attr("x", (d) => { return X_SCALE3(d.species); }) 
-        .attr("y", (d) => { return Y_SCALE3(d.count); }) 
+        .attr("y", (d) => { return MARGINS.top + Y_SCALE3(d.count); }) 
         .attr("width", X_SCALE3.bandwidth())
         .attr("height", (d) => { return (VIS_HEIGHT - Y_SCALE3(d.count)); })
         .attr("fill", (d) => { return color_dict[d.species]; })
@@ -278,12 +278,12 @@ function build_bar_plot() {
         .text("Count of Species");
 
   FRAME3.append("g")
-      .attr("transform", "translate(0," + VIS_HEIGHT + ")")
+      .attr("transform", "translate(0," + (VIS_HEIGHT+MARGINS.top) + ")")
       .call(d3.axisBottom(X_SCALE3));
 
     FRAME3.append("g")
     .attr("transform", "translate(" + MARGINS.left + 
-    "," + 0 + ")") 
+    "," + MARGINS.top + ")") 
       .call(d3.axisLeft(Y_SCALE3));
     });
   }  
